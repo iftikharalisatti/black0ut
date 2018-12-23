@@ -13,8 +13,12 @@ using System.Collections.Generic;
 
 namespace Black0ut.Net
 {
+    using Log;
+
     public class QueuedUDPClient : UdpClient
     {
+        public Log Log;
+
         public int DequeueLoopDelay;
 
         public List<IPEndPoint> MutedIPEndPoints;
@@ -24,12 +28,12 @@ namespace Black0ut.Net
         public Thread ReveiveThread;
         public Thread DequeueThread;
 
-        public DLogHandler LogHandler;
-
         public DataHandler DataHandler;
 
-        public QueuedUDPClient(string hostname, int port, int dequeueLoopDelay = 10) : base(hostname, port)
+        public QueuedUDPClient(string hostname, int port, Log log, int dequeueLoopDelay = 10) : base(hostname, port)
         {
+            Log = log;
+
             DequeueLoopDelay = dequeueLoopDelay;
 
             DataHandler = new DataHandler();
@@ -38,7 +42,7 @@ namespace Black0ut.Net
 
             ReveiveThread = new Thread(() =>
             {
-                LogHandler($"Started thread ReveiveThread.", "");
+                Log.Show($"Started thread ReveiveThread.", "ReveiveThread");
 
                 var datagram = new Datagram();
 
@@ -53,14 +57,14 @@ namespace Black0ut.Net
                     }
                     catch (Exception e)
                     {
-                        LogHandler(e.ToString(), "");
+                        Log.Show(e.ToString(), "ReveiveThread");
                     }
                 }
             });
 
             DequeueThread = new Thread(() =>
             {
-                LogHandler($"Started thread DequeueThread.", "");
+                Log.Show($"Started thread DequeueThread.", "DequeueThread");
 
                 var datagram = new Datagram();
 
@@ -78,7 +82,7 @@ namespace Black0ut.Net
                             if (!DataHandler.Handle(datagram) && !MutedIPEndPoints.Contains(datagram.iPEndPoint))
                             {
                                 MutedIPEndPoints.Add(datagram.iPEndPoint);
-                                LogHandler($"IPEndPoint '{datagram.iPEndPoint}' added to MutedIPEndPoints! Failed to handle received data '{BitConverter.ToString(datagram.Data)}'.", "");
+                                Log.Show($"IPEndPoint '{datagram.iPEndPoint}' added to MutedIPEndPoints! Failed to handle received data '{BitConverter.ToString(datagram.Data)}'.", "DequeueThread");
                             }
                         }
                         
@@ -86,7 +90,7 @@ namespace Black0ut.Net
                     }
                     catch (Exception e)
                     {
-                        LogHandler(e.ToString(), "");
+                        Log.Show(e.ToString(), "DequeueThread");
                     }
                 }
             });
@@ -102,7 +106,7 @@ namespace Black0ut.Net
 
             Close();
 
-            LogHandler("Stopped threads and closed UdpClient connection.", "Close");
+            Log.Show("Stopped threads and closed UdpClient connection.", "Close");
         }
 
         public void Send(IPEndPoint iPEndPoint, byte[] data)

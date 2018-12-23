@@ -10,10 +10,11 @@ using System.Net;
 using System.Threading;
 using System.Collections.Generic;
 
-using Black0ut.Byte;
-
 namespace Black0ut.Net
 {
+    using Log;
+    using Byte;
+
     public class P2PClient : QueuedUDPClient
     {
         public int IPEndPointTimeout;
@@ -24,7 +25,7 @@ namespace Black0ut.Net
 
         public int Time;
 
-        public P2PClient(string hostname, int port, int dequeueLoopDelay = 10, int iPEndPointTimeout = 1000) : base(hostname, port, dequeueLoopDelay)
+        public P2PClient(string hostname, int port, Log log, int dequeueLoopDelay = 10, int iPEndPointTimeout = 1000) : base(hostname, port, log, dequeueLoopDelay)
         {
             IPEndPoints = new List<IPEndPointTimePair>();
 
@@ -35,7 +36,7 @@ namespace Black0ut.Net
 
             IPEndPointsUpdateThread = new Thread(() =>
             {
-                LogHandler($"Started thread TimeThread.", "");
+                Log.Show($"Started thread TimeThread.", "IPEndPointsUpdateThread");
 
                 var iPEndPointTimePair = new IPEndPointTimePair();
 
@@ -113,7 +114,7 @@ namespace Black0ut.Net
             if (!IPEndPoints.Contains(iPEndPointTimePair))
             {
                 IPEndPoints.Add(iPEndPointTimePair);
-                LogHandler($"Added new client {datagram.iPEndPoint}!", "AddIPEndPoint");
+                Log.Show($"Added new client {datagram.iPEndPoint}!", "AddIPEndPoint");
             }
 
             return true;
