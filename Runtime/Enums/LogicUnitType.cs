@@ -5,7 +5,10 @@
 // GNU GENERAL PUBLIC LICENSE V3
 // --------------------------------
 
-namespace Black0ut.Net
+namespace Black0ut.Runtime
 {
-    public delegate void DLogHandler(string message, string method);
+    public enum LogicUnitType : byte
+    {
+        EQUALS, NOTEQUALS, BIGGER, BIGGEREQUALS, SMALLER, SMALLEREQUALS,
+    }
 }
