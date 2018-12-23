@@ -15,6 +15,7 @@ namespace Black0ut.Net
     using Log;
     using Byte;
 
+    [Obsolete("Has not been tested", false)]
     public class P2PClient : QueuedUDPClient
     {
         public int IPEndPointTimeout;

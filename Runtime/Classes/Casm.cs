@@ -11,6 +11,7 @@ namespace Black0ut.Runtime
 {
     using Log;
 
+    [Obsolete("Has not been tested", false)]
     public class Casm
     {
         public byte[][] Files;
