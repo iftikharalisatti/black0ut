@@ -18,8 +18,6 @@ namespace Black0ut.Runtime
 
         public InstructionHandler[] InstructionHandlers;
 
-        public Log Log;
-
         public Casm()
         {
             InstructionHandlers = new InstructionHandler[]

@@ -9,16 +9,20 @@ using System;
 
 namespace Black0ut.Log
 {
-    public class Log
+    public static class Log
     {
-        public Action<string, string> LogAction;
+        public static Action<string, string> LogAction;
 
-        public Log(Action<string, string> logAction)
+        #region .ctor
+
+        public static void SetLogAction(Action<string, string> logAction)
         {
             LogAction = logAction;
         }
 
-        public void Show(string message, string method)
+        #endregion
+
+        public static void Show(string message, string method)
         {
             LogAction(message, method);
         }
