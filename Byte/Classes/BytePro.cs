@@ -5,11 +5,12 @@
 // GNU GENERAL PUBLIC LICENSE V3
 // --------------------------------
 
+using System;
 using System.Runtime.InteropServices;
 
 namespace Black0ut.Byte
 {
-    public static class ProByte
+    public static class BytePro
     {
         #region Equality
 
@@ -27,16 +28,10 @@ namespace Black0ut.Byte
 
         public static void Set(ref byte[] data, ref int index, params byte[][] datas)
         {
-            var subData = new byte[0];
-
             for (int i = 0, count = datas.Length; i < count; i++)
             {
-                subData = datas[i];
-
-                for (int j = 0, length = subData.Length; j < length; j++)
-                {
-                    data[index++] = subData[j];
-                }
+                Buffer.BlockCopy(datas[i], 0, data, index, datas[i].Length);
+                index += datas[i].Length;
             }
         }
 

@@ -5,10 +5,37 @@
 // GNU GENERAL PUBLIC LICENSE V3
 // --------------------------------
 
-namespace Black0ut.Runtime.Enums
+namespace Black0ut.Runtime
 {
     public enum InstructionType : byte
     {
-        NOOPERATION, RETURN, EXECUTE, READ, GOTO, IF, COPY, INCREMENT, DECREMENT, ADD, SUBTRACT, MULTIPLY, DIVIDE, REMAINDER, SHIFTLEFT, SHIFTRIGHT, XOR,
+        // PROGRAM
+        NOOPERATION,
+        RETURN,
+        EXECUTE,
+        READ,
+        IF,
+        COPY,
+
+        // NOT LINK INSTRUCTION
+        _GOTO,
+        _SKIP,
+        _LOG,
+
+        // ARITHMETIC
+        INCREMENT,
+        DECREMENT,
+        ADD,
+        SUBTRACT,
+        MULTIPLY,
+        DIVIDE,
+        REMAINDER,
+        SHIFTLEFT,
+        SHIFTRIGHT,
+        XOR,
+        SQRT,
+        
+        // COMPILER
+        LINK,
     }
 }

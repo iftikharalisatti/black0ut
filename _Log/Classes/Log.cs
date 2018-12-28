@@ -13,18 +13,9 @@ namespace Black0ut.Log
     {
         public static Action<string, string> LogAction;
 
-        #region .ctor
-
-        public static void SetLogAction(Action<string, string> logAction)
-        {
-            LogAction = logAction;
-        }
-
-        #endregion
-
         public static void Show(string message, string method)
         {
-            LogAction(message, method);
+            LogAction?.Invoke(message, method);
         }
     }
 }

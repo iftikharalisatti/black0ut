@@ -6,28 +6,39 @@
 // --------------------------------
 
 using System;
+using System.Text;
+using System.Collections.Generic;
 
 namespace Black0ut.Runtime
 {
     using Log;
 
-    [Obsolete("Has not been tested", false)]
-    public class Casm
+    public class _asm
     {
         public byte[][] Files;
 
         public InstructionHandler[] InstructionHandlers;
 
-        public Casm()
+        #region .ctor
+
+        public _asm()
         {
             InstructionHandlers = new InstructionHandler[]
             {
+                // PROGRAM
                 NOOPERATION,
+                RETURN,
                 EXECUTE,
                 READ,
-                GOTO,
                 IF,
                 COPY,
+
+                // NOT LINK INSTRUCTION
+                _GOTO,
+                _SKIP,
+                _LOG,
+
+                // ARITHMETIC
                 INCREMENT,
                 DECREMENT,
                 ADD,
@@ -38,8 +49,16 @@ namespace Black0ut.Runtime
                 SHIFTLEFT,
                 SHIFTRIGHT,
                 XOR,
+                SQRT,
+        
+                // COMPILER
+                //LINK,
             };
         }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Returns -1 on file return, else return exception executePoint
@@ -71,7 +90,80 @@ namespace Black0ut.Runtime
             return Execute(Files[fileIndex]);
         }
 
+        public byte[] Compile(string source)
+        {
+            var index = 0;
+
+            var instructions = source.Replace("\n", " ").Replace("\r", " ").Split(' ');
+
+            try
+            {
+                checked
+                {
+                    var compiledInstructions = new List<byte>();
+
+                    var variableLinks = new Dictionary<string, byte>(); // name, index
+
+                    while (index < instructions.Length)
+                    {
+                        if (string.IsNullOrEmpty(instructions[index]) || instructions[index][0] == '/')
+                        {
+                            index++;
+                            continue;
+                        }
+
+                        if (instructions[index].ToUpper() == InstructionType.LINK.ToString())
+                        {
+                            if (variableLinks.ContainsKey(instructions[++index].ToUpper()))
+                                throw new Exception($"Already contains definition for [{instructions[index].ToUpper()}].");
+
+                            variableLinks.Add(instructions[index], (byte)(compiledInstructions.Count));
+
+                            compiledInstructions.Add(byte.Parse(instructions[++index]));
+
+                            index++;
+
+                            continue;
+                        }
+
+                        try
+                        {
+                            compiledInstructions.Add(byte.Parse(instructions[index]));
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                compiledInstructions.Add((byte)Enum.Parse(typeof(InstructionType), instructions[index].ToUpper()));
+                            }
+                            catch
+                            {
+                                if (!variableLinks.ContainsKey(instructions[index]))
+                                    throw new Exception($"Variable link [{instructions[index]}] not implemented before.");
+
+                                compiledInstructions.Add(variableLinks[instructions[index]]);
+                            }
+                        }
+
+                        index++;
+                    }
+
+                    return compiledInstructions.ToArray();
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Show($"Failed to compile program. Instruction [{instructions[index]}]. Exception [{e}]", "Compile");
+
+                return null;
+            }
+        }
+
+        #endregion
+
         #region InstructionHandlers
+
+        #region Program
 
         public bool NOOPERATION(byte[] file, ref byte executionPoint)
         {
@@ -106,22 +198,12 @@ namespace Black0ut.Runtime
         }
 
         /// <summary>
-        /// Sets executionPoint
-        /// </summary>
-        public bool GOTO(byte[] file, ref byte executionPoint)
-        {
-            executionPoint = file[file[executionPoint + 1]];
-            executionPoint += 2;
-            return false;
-        }
-
-        /// <summary>
         /// If branch, goes to executionPoint by result
         /// </summary>
         public bool IF(byte[] file, ref byte executionPoint)
         {
             // Logic unit
-            switch((LogicUnitType)file[executionPoint + 2])
+            switch ((LogicUnitType)file[executionPoint + 2])
             {
                 case LogicUnitType.EQUALS:
                     if (file[file[executionPoint + 1]] == file[file[executionPoint + 3]])
@@ -176,6 +258,43 @@ namespace Black0ut.Runtime
             executionPoint += 3;
             return false;
         }
+
+        #endregion
+
+        #region Not Link Instructions
+
+        /// <summary>
+        /// Sets executionPoint
+        /// </summary>
+        public bool _GOTO(byte[] file, ref byte executionPoint)
+        {
+            executionPoint = file[executionPoint + 1];
+            executionPoint += 2;
+            return false;
+        }
+
+        /// <summary>
+        /// Skips specifed instructions count, also skips this instruction size.
+        /// </summary>
+        public bool _SKIP(byte[] file, ref byte executionPoint)
+        {
+            executionPoint += (byte)(2 + file[executionPoint + 1]);
+            return false;
+        }
+
+        /// <summary>
+        /// Debug log
+        /// </summary>
+        public bool _LOG(byte[] file, ref byte executionPoint)
+        {
+            Log.Show(Encoding.ASCII.GetString(file, executionPoint + 2, file[executionPoint + 1]), "LOG");
+            executionPoint += (byte)(2 + file[executionPoint + 1]);
+            return false;
+        }
+
+        #endregion
+
+        #region Arithmetic
 
         /// <summary>
         /// ++
@@ -276,6 +395,18 @@ namespace Black0ut.Runtime
             executionPoint += 4;
             return false;
         }
+
+        /// <summary>
+        /// sqrt()
+        /// </summary>
+        public bool SQRT(byte[] file, ref byte executionPoint)
+        {
+            file[file[executionPoint + 1]] = (byte)Math.Sqrt(file[file[executionPoint + 1]]);
+            executionPoint += 2;
+            return false;
+        }
+
+        #endregion
 
         #endregion
     }
