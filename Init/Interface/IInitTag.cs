@@ -10,21 +10,11 @@ namespace Black0ut.Init
     /// <summary>
     /// Init interface with tag
     /// </summary>
-    public interface IInitTag
+    public interface IInitTag : IInit
     {
         /// <summary>
         /// Init class tag, when need init more than one group
         /// </summary>
         string Tag { get; set; }
-
-        /// <summary>
-        /// Initialize class
-        /// </summary>
-        void Init();
-
-        /// <summary>
-        /// Initialize class after other classes Init
-        /// </summary>
-        void PostInit();
     }
 }

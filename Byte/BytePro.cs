@@ -26,24 +26,21 @@ namespace Black0ut.Byte
 
         #region Set
 
-        public static void Set(ref byte[] data, ref int index, params byte[][] datas)
+        public static byte[] Set(byte[] data, ref int index, params byte[][] datas)
         {
             for (int i = 0, count = datas.Length; i < count; i++)
             {
                 Buffer.BlockCopy(datas[i], 0, data, index, datas[i].Length);
+
                 index += datas[i].Length;
             }
+
+            return data;
         }
 
-        public static void Set(ref byte[] data, int index, params byte[][] datas)
+        public static byte[] Set(byte[] data, int index, params byte[][] datas)
         {
-            Set(ref data, ref index, datas);
-        }
-
-        public static void Set(ref byte[] packetData, params byte[][] otherDatas)
-        {
-            var index = 0;
-            Set(ref packetData, ref index, otherDatas);
+            return Set(data, ref index, datas);
         }
 
         #endregion
@@ -54,38 +51,27 @@ namespace Black0ut.Byte
         {
             var dataLength = 0;
 
-            if (datas.Length > 1)
+            for (int i = 0, count = datas.Length; i < count; i++)
             {
-                for (int i = 0, count = datas.Length; i < count; i++)
-                {
-                    dataLength += datas[i].Length;
-                }
+                dataLength += datas[i].Length;
             }
-            else
-                dataLength = datas[0].Length;
 
-            var data = new byte[dataLength];
-            Set(ref data, datas);
-            return data;
+            return Set(new byte[dataLength], 0, datas);
         }
 
         public static byte[] Combine(byte firstByte, params byte[][] datas)
         {
             var dataLength = 1;
 
-            if (datas.Length > 1)
+            for (int i = 0, count = datas.Length; i < count; i++)
             {
-                for (int i = 0, count = datas.Length; i < count; i++)
-                {
-                    dataLength += datas[i].Length;
-                }
+                dataLength += datas[i].Length;
             }
-            else
-                dataLength += datas[0].Length;
 
-            var data = new byte[dataLength];
+            var data = Set(new byte[dataLength], 1, datas);
+
             data[0] = firstByte;
-            Set(ref data, datas);
+
             return data;
         }
 
