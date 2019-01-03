@@ -210,14 +210,12 @@ namespace Black0ut.Net
 
             Send(data, data.Length, endPoint);
         }
-
         public void Send(IPEndPoint endPoint, byte packetType, params byte[][] datas)
         {
             var data = BytePro.Combine(packetType, datas);
 
             Send(data, data.Length, endPoint);
         }
-
         public void Send(IPEndPoint endPoint, byte packetType)
         {
             Send(new byte[1] { packetType }, 1, endPoint);
@@ -234,6 +232,33 @@ namespace Black0ut.Net
         public void Send(byte packetType)
         {
             Send(ServerEndPoint, packetType);
+        }
+
+        public void SendToAll(byte[][] datas)
+        {
+            if (Clients.Count < 1)
+                return;
+
+            lock (ReceiveLocker)
+            {
+                for (int i = 0, count = Clients.Count; i < count; i++)
+                {
+                    Send(Clients[i], datas);
+                }
+            }
+        }
+        public void SendToAll(byte packetType, byte[][] datas)
+        {
+            if (Clients.Count < 1)
+                return;
+
+            lock (ReceiveLocker)
+            {
+                for (int i = 0, count = Clients.Count; i < count; i++)
+                {
+                    Send(Clients[i], packetType, datas);
+                }
+            }
         }
 
         #endregion
